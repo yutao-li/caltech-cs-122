@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Look for the NanoDB server JAR file in the target directory
+NANODB_SERVER_JAR=`ls target/nanodb-server-*.jar 2>/dev/null`
+if [ -z "$NANODB_SERVER_JAR" ]
+then
+    echo "Can't find NanoDB server JAR file.  Have you built the project?"
+    exit 1
+fi
+
+# To set the page-size to use, add "-Dnanodb.pagesize=2048" to JAVA_OPTS.
+# To enable transaction processing, add "-Dnanodb.txns=on" to JAVA_OPTS.
+JAVA_OPTS="-Dlog4j.configurationFile=log4j2.properties"
+
+java $JAVA_OPTS -cp $NANODB_SERVER_JAR edu.caltech.nanodb.server.SharedServer
+
