@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 
 import static org.mockito.Mockito.*;
 
+import edu.caltech.nanodb.server.properties.PropertyRegistry;
 import edu.caltech.test.nanodb.framework.Concurrent;
 import org.testng.annotations.Test;
 
@@ -34,7 +35,8 @@ public class TestBufferManager extends StorageTestCase {
         FileUtils.cleanDirectory(testBaseDir);
 
         FileManager fileMgr = spy(new FileManagerImpl(testBaseDir));
-        BufferManager bufMgr = new BufferManager(fileMgr);
+        BufferManager bufMgr =
+            new BufferManager(fileMgr, new PropertyRegistry());
 
         DBFile file = fileMgr.createDBFile("TestBufferManager_testBuffering",
             DBFileType.TEST_FILE, 4096);
@@ -72,7 +74,8 @@ public class TestBufferManager extends StorageTestCase {
         FileUtils.cleanDirectory(testBaseDir);
 
         FileManager fileMgr = spy(new FileManagerImpl(testBaseDir));
-        BufferManager bufMgr = new BufferManager(fileMgr);
+        BufferManager bufMgr =
+            new BufferManager(fileMgr, new PropertyRegistry());
 
         // Set the Buffer Manager's pool size to 4MiB.  This will force a
         // significant number of pool evictions during the test.

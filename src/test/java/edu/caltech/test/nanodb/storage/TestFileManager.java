@@ -4,6 +4,7 @@ package edu.caltech.test.nanodb.storage;
 import java.io.File;
 import java.io.IOException;
 
+import edu.caltech.nanodb.server.properties.PropertyRegistry;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -29,7 +30,7 @@ public class TestFileManager extends StorageTestCase {
     @BeforeClass
     public void beforeClass() {
         fileMgr = new FileManagerImpl(testBaseDir);
-        bufMgr = new BufferManager(fileMgr);
+        bufMgr = new BufferManager(fileMgr, new PropertyRegistry());
     }
 
 

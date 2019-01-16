@@ -73,69 +73,6 @@ public class NanoDBServer implements ServerProperties {
 
 
     /**
-     * Initialize all of the properties that the database server knows about.
-     * Some of these properties are read-write, and others are read-only and
-     * are initialized right at database startup, before any other steps
-     * occur.
-     */
-    private void initProperties() {
-        propertyRegistry.addProperty(PROP_BASE_DIRECTORY,
-            new StringValueValidator(), DEFAULT_BASE_DIRECTORY,
-            /* readonly */ true);
-
-        propertyRegistry.addProperty(PROP_PAGECACHE_SIZE,
-            new IntegerValueValidator(MIN_PAGECACHE_SIZE, MAX_PAGECACHE_SIZE),
-            DEFAULT_PAGECACHE_SIZE);
-
-        propertyRegistry.addProperty(PROP_PAGECACHE_POLICY,
-            new StringEnumValidator(PAGECACHE_POLICY_VALUES),
-            DEFAULT_PAGECACHE_POLICY);
-
-        propertyRegistry.addProperty(PROP_PAGE_SIZE,
-            new IntegerValueValidator(DBFile::isValidPageSize,
-                "Specified page-size %d is invalid."), DEFAULT_PAGE_SIZE);
-
-        propertyRegistry.addProperty(PROP_ENABLE_TRANSACTIONS,
-            new BooleanFlagValidator(), false, /* readonly */ true);
-
-        propertyRegistry.addProperty(PROP_ENFORCE_KEY_CONSTRAINTS,
-            new BooleanFlagValidator(), true);
-
-        propertyRegistry.addProperty(PROP_ENABLE_INDEXES,
-            new BooleanFlagValidator(), false, /* reaadonly */ true);
-
-        propertyRegistry.addProperty(PROP_CREATE_INDEXES_ON_KEYS,
-            new BooleanFlagValidator(), false);
-
-        propertyRegistry.addProperty(PROP_PLANNER_CLASS,
-            new PlannerClassValidator(), DEFAULT_PLANNER_CLASS);
-
-        propertyRegistry.addProperty(PROP_FLUSH_AFTER_CMD,
-            new BooleanFlagValidator(), true);
-    }
-
-
-    /**
-     * This helper function sets the NanoDB server properties based on the
-     * contents of a Java {@code Properties} object.  This allows us to set
-     * NanoDB properties from system properties and/or other sources of
-     * properties.
-     *
-     * @param properties the properties to apply to NanoDB's configuration.
-     */
-    private void setProperties(Properties properties) {
-        if (properties == null)
-            throw new IllegalArgumentException("properties cannot be null");
-
-        for (String name : properties.stringPropertyNames()) {
-            if (propertyRegistry.hasProperty(name))
-                propertyRegistry.setPropertyValue(name,
-                    properties.getProperty(name));
-        }
-    }
-
-
-    /**
      * This static method encapsulates all of the operations necessary for
      * cleanly starting the NanoDB server.  Database server properties are
      * initialized from the JVM system properties, and/or defaults are used.
@@ -166,13 +103,12 @@ public class NanoDBServer implements ServerProperties {
 
         // Everything needs configuration.
         propertyRegistry = new PropertyRegistry();
-        initProperties();
 
         // Apply system properties first (populated from e.g. command line),
         // then override with any arguments to this function.
-        setProperties(System.getProperties());
+        propertyRegistry.setProperties(System.getProperties());
         if (initialProperties != null)
-            setProperties(initialProperties);
+            propertyRegistry.setProperties(initialProperties);
 
         propertyRegistry.setupCompleted();
 

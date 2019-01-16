@@ -13,7 +13,6 @@ import edu.caltech.nanodb.indexes.IndexManager;
 import edu.caltech.nanodb.indexes.IndexUpdater;
 import edu.caltech.nanodb.relations.DatabaseConstraintEnforcer;
 import edu.caltech.nanodb.server.EventDispatcher;
-import edu.caltech.nanodb.server.NanoDBException;
 import edu.caltech.nanodb.server.NanoDBServer;
 import edu.caltech.nanodb.server.properties.PropertyRegistry;
 import edu.caltech.nanodb.server.properties.ServerProperties;
@@ -22,7 +21,8 @@ import edu.caltech.nanodb.transactions.TransactionManager;
 
 
 /**
- *
+ * The Storage Manager provides facilities for managing files of tuples,
+ * including in-memory buffering of data pages and support for transactions.
  *
  * @todo This class requires synchronization, once we support multiple clients.
  */
@@ -30,11 +30,6 @@ public class StorageManager {
 
     /** A logging object for reporting anything interesting that happens. */
     private static Logger logger = LogManager.getLogger(StorageManager.class);
-
-
-    /*========================================================================
-     * STATIC FIELDS AND METHODS
-     */
 
 
     /*========================================================================
@@ -139,7 +134,7 @@ public class StorageManager {
         logger.info("Using base directory " + baseDir);
 
         fileManager = new FileManagerImpl(baseDir);
-        bufferManager = new BufferManager(fileManager);
+        bufferManager = new BufferManager(fileManager, serverProps);
 
         tupleFileManagers.put(DBFileType.HEAP_TUPLE_FILE,
             new HeapTupleFileManager(this));

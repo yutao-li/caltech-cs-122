@@ -14,6 +14,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import edu.caltech.nanodb.server.SessionState;
+import edu.caltech.nanodb.server.properties.PropertyObserver;
+import edu.caltech.nanodb.server.properties.PropertyRegistry;
+import edu.caltech.nanodb.server.properties.ServerProperties;
 
 
 /**
@@ -29,35 +32,15 @@ import edu.caltech.nanodb.server.SessionState;
  */
 public class BufferManager {
 
-    /** The default page-cache size is defined to be 20MiB. */
-    public static final int DEFAULT_PAGECACHE_SIZE = 20 * 1024 * 1024;
-
-    /**
-     * The minimum page-cache size is defined to be 32KiB, which is really
-     * only sufficient to run smaller queries when page-pinning is working
-     * properly.
-     */
-    public static final int MIN_PAGECACHE_SIZE = 32 * 1024;
-
-    /**
-     * The system property that can be used to specify the page replacement
-     * policy in the buffer manager.
-     */
-    public static final String PROP_PAGECACHE_POLICY = "nanodb.pagecache.policy";
-
-    /** The default page-cache policy is LRU. */
-    public static final String DEFAULT_PAGECACHE_POLICY = "lru";
-
-
     /**
      * This helper class keeps track of a data page that is currently cached.
      */
     private static class CachedPageInfo {
-        public DBFile dbFile;
+        DBFile dbFile;
 
-        public int pageNo;
+        int pageNo;
 
-        public CachedPageInfo(DBFile dbFile, int pageNo) {
+        CachedPageInfo(DBFile dbFile, int pageNo) {
             if (dbFile == null)
                 throw new IllegalArgumentException("dbFile cannot be null");
 
@@ -154,34 +137,39 @@ public class BufferManager {
 
     /**
      * A string indicating the buffer manager's page replacement policy.
-     * Currently it can be "lru" or "fifo".
+     * Currently it can be "LRU" or "FIFO".
      */
     private String replacementPolicy;
 
 
-    public BufferManager(FileManager fileManager) {
+    private class BufferPropertyObserver
+        implements PropertyObserver, ServerProperties {
+        public void propertyChanged(String propertyName, Object newValue) {
+            // We only care about the pagecache-size value.
+            if (PROP_PAGECACHE_SIZE.equals(propertyName)) {
+                setMaxCacheSize((Integer) newValue);
+            }
+        }
+    }
+
+
+
+    public BufferManager(FileManager fileManager,
+                         PropertyRegistry propertyRegistry) {
         this.fileManager = fileManager;
+        propertyRegistry.addObserver(new BufferPropertyObserver());
 
-        maxCacheSize = DEFAULT_PAGECACHE_SIZE;
+        maxCacheSize = propertyRegistry.getIntProperty(
+            ServerProperties.PROP_PAGECACHE_SIZE);
 
-        /* TODO:  Factor out the replacement policy implementation so that
-         *        it's easier to replace/configure in the future.
-         */
-        replacementPolicy = configureReplacementPolicy();
-        cachedPages = new LinkedHashMap<>(16, 0.75f, "lru".equals(replacementPolicy));
+        // TODO:  Factor out the replacement policy implementation so that
+        //        it's easier to replace/configure in the future.
+        replacementPolicy = propertyRegistry.getStringProperty(
+            ServerProperties.PROP_PAGECACHE_POLICY);
+        cachedPages =
+            new LinkedHashMap<>(16, 0.75f, "LRU".equals(replacementPolicy));
 
         totalBytesCached = 0;
-
-        /* TODO:  Get rid of this.  Something outside of this class should
-         *        configure it when it is initialized.
-
-        if (server != null) {
-            // Register properties that the Buffer Manager exposes.
-            server.getPropertyRegistry().registerProperties(
-                new BufferManagerPropertyHandler(),
-                PROP_PAGECACHE_POLICY, PROP_PAGECACHE_SIZE);
-        }
-         */
     }
 
 
@@ -193,9 +181,10 @@ public class BufferManager {
      * @param maxCacheSize the maximum size for the buffer cache.
      */
     public void setMaxCacheSize(int maxCacheSize) {
-        if (maxCacheSize < MIN_PAGECACHE_SIZE) {
+        if (maxCacheSize < ServerProperties.MIN_PAGECACHE_SIZE) {
             throw new IllegalArgumentException(
-                "maxCacheSize must be at least " + MIN_PAGECACHE_SIZE);
+                "maxCacheSize must be at least " +
+                ServerProperties.MIN_PAGECACHE_SIZE);
         }
 
         synchronized (guard) {
@@ -220,21 +209,6 @@ public class BufferManager {
         synchronized (guard) {
             return maxCacheSize;
         }
-    }
-
-
-    private String configureReplacementPolicy() {
-        String str = DEFAULT_PAGECACHE_POLICY;
-        str = str.trim().toLowerCase();
-
-        if (!("lru".equals(str) || "fifo".equals(str))) {
-            logger.error(String.format(
-                "Unrecognized value \"%s\" for page-cache replacement " +
-                "policy; using default value of LRU.",
-                System.getProperty(PROP_PAGECACHE_POLICY)));
-        }
-
-        return str;
     }
 
 

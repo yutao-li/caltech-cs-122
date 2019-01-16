@@ -1,6 +1,7 @@
 package edu.caltech.test.nanodb.storage;
 
 
+import edu.caltech.nanodb.server.properties.PropertyRegistry;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
@@ -48,7 +49,8 @@ public class TestDBPage extends StorageTestCase {
     public void beforeClass() {
 
         fileMgr = new FileManagerImpl(testBaseDir);
-        BufferManager bufMgr = new BufferManager(fileMgr);
+        BufferManager bufMgr =
+            new BufferManager(fileMgr, new PropertyRegistry());
 
         // Get DBFile
         DBFileType type = DBFileType.HEAP_TUPLE_FILE;
