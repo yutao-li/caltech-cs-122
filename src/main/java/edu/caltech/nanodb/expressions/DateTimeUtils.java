@@ -11,6 +11,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
 import java.util.regex.Pattern;
+import java.util.Locale;
 
 
 /**
@@ -26,8 +27,8 @@ public class DateTimeUtils {
     private static final DateTimeFormatter DATE_FORMATS[] = {
         DateTimeFormatter.ISO_LOCAL_DATE,
         DateTimeFormatter.BASIC_ISO_DATE,
-        DateTimeFormatter.ofPattern("dd MMM yyyy"),
-        DateTimeFormatter.ofPattern("MMM dd yyyy")
+        DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH),
+        DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH)
     };
 
     /**
