@@ -43,6 +43,7 @@ commandNoSemicolon:
       | showTablesStmt
       | showPropsStmt
       | setPropStmt
+      | showSystemStatsStmt
       ;
 
 
@@ -204,6 +205,9 @@ rollbackTxnStmt:
 
 //============================================================================
 // Other utility statements
+//   SHOW PROPERTIES
+//   SET PROPERTY '...' = ...
+//   SHOW '...' STATS
 //   FLUSH
 //   CRASH
 //   EXIT (or QUIT)
@@ -214,6 +218,9 @@ showPropsStmt:
 
 setPropStmt:
         SET PROPERTY name=STRING_LITERAL '=' expression ;
+
+showSystemStatsStmt:
+        SHOW name=STRING_LITERAL STATS ;
 
 flushStmt:
         FLUSH ;

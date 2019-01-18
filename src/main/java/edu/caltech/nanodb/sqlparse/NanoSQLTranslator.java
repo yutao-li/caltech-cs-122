@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
+import edu.caltech.nanodb.commands.ShowSystemStatsCommand;
 import edu.caltech.nanodb.expressions.ArithmeticOperator;
 import edu.caltech.nanodb.expressions.BooleanOperator;
 import edu.caltech.nanodb.expressions.ColumnName;
@@ -164,6 +165,16 @@ public class NanoSQLTranslator extends NanoSQLBaseVisitor<Object> {
 
         return new SetPropertyCommand(propName,
             (Expression) visit(ctx.expression()));
+    }
+
+    @Override
+    public Object visitShowSystemStatsStmt(NanoSQLParser.ShowSystemStatsStmtContext ctx) {
+        String systemName = ctx.name.getText();
+
+        // Remove the quotes from around the subsystem name
+        systemName = systemName.substring(1, systemName.length() - 1);
+
+        return new ShowSystemStatsCommand(systemName);
     }
 
     //=== TABLE/INDEX UTILITY COMMANDS =======================================
