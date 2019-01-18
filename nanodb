@@ -19,14 +19,21 @@ JAVA_OPTS="-Dlog4j.configurationFile=log4j2.properties"
 # uncomment this line:
 # JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5009"
 
-
-# See if we have the rlwrap utility; if so, it makes using NanoDB
-# from the command-line sooo much nicer...
-testrl=$(which rlwrap)
-if [ -z "$testrl" ]
-then
-    java $JAVA_OPTS "$@" -jar $NANODB_SERVER_JAR
+PLATFORM=`uname`
+if [[ $PLATFORM == *"MINGW"* ]]; then
+	# Windows, probably git bash
+	WRAPPER=winpty
 else
-    rlwrap java $JAVA_OPTS "$@" -jar $NANODB_SERVER_JAR
+	# See if we have the rlwrap utility; if so, it makes using NanoDB
+	# from the command-line sooo much nicer...
+	testrl=$(which rlwrap)
+	if [ -z "$testrl" ]; then
+		# No wrapper
+		WRAPPER=
+	else
+		WRAPPER=rlwrap
+	fi
 fi
+
+$WRAPPER java $JAVA_OPTS "$@" -jar $NANODB_SERVER_JAR
 
