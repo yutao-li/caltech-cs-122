@@ -57,6 +57,9 @@ public class TestBufferManager extends StorageTestCase {
 
         verify(fileMgr, times(1)).loadPage(file, 3, page3.getPageData(), true);
         verify(fileMgr, times(1)).loadPage(file, 5, page.getPageData(), true);
+
+        bufMgr.removeDBFile(file);
+        fileMgr.closeDBFile(file);
     }
 
 
@@ -93,7 +96,7 @@ public class TestBufferManager extends StorageTestCase {
         }
 
         // Give the test 60 seconds to complete.
-        Concurrent.assertConcurrent("Concurrent reads and writes", tasks, 60);
+        Concurrent.assertConcurrent("Concurrent reads and writes", tasks, 120);
     }
 
 
@@ -143,5 +146,9 @@ public class TestBufferManager extends StorageTestCase {
 
             page.unpin();
         }
+
+        // Close the data file.
+        bufMgr.removeDBFile(file);
+        fileMgr.closeDBFile(file);
     }
 }
