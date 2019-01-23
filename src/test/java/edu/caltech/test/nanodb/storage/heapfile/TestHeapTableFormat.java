@@ -15,7 +15,7 @@ import edu.caltech.test.nanodb.storage.TableFormatTestCase;
  * performing various SQL operations against it.  It doesn't test the
  * implementation class directly.
  */
-@Test
+@Test(groups={"hw1"})
 public class TestHeapTableFormat extends TableFormatTestCase {
 
     /**
