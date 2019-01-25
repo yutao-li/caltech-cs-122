@@ -53,19 +53,7 @@ public class ExclusiveClient extends InteractiveClient {
 
     @Override
     public CommandResult handleCommand(String command) {
-        CommandResult result = server.doCommand(command, false);
-
-        if (result.failed()) {
-            Exception e = result.getFailure();
-            if (e instanceof ParseCancellationException) {
-                System.out.println("ERROR:  Could not parse command");
-            }
-            else {
-                System.out.println("ERROR:  " + e.getMessage());
-            }
-        }
-
-        return result;
+        return server.doCommand(command, false);
     }
 
 
