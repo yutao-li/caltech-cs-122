@@ -144,7 +144,7 @@
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                     -->
-                    <groups>framework,parser</groups>
+                    <groups>framework,parser,hw1</groups>
                 </configuration>
             </plugin>
 
@@ -196,18 +196,37 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+
                     <execution>
                         <id>default-report</id>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
+
                     <execution>
                         <id>default-check</id>
                         <goals>
                             <goal>check</goal>
                         </goals>
                     </execution>
+
+                    <!--
+                     Extra config to ensure we get a report after testing,
+                     even if the site isn't generated.
+                     -->
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the output directory for the code coverage report. -->
+                            <outputDirectory>${project.build.directory}/coverage-reports</outputDirectory>
+                        </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
         </plugins>
