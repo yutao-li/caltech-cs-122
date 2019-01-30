@@ -91,9 +91,10 @@ public class SumAvgAggregate extends AggregateFunction {
             return null;
         }
         else if (computeAverage) {
+            // TODO:  Need to generate NUMERIC result.  Using double right now.
             // Compute average from the sum and count.
             return ArithmeticOperator.evalObjects(
-                ArithmeticOperator.Type.DIVIDE, sum, Integer.valueOf(count));
+                ArithmeticOperator.Type.DIVIDE, sum, (double) count);
         }
         else {
             // Just return the sum.

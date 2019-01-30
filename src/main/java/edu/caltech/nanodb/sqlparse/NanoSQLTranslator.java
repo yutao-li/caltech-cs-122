@@ -882,11 +882,11 @@ public class NanoSQLTranslator extends NanoSQLBaseVisitor<Object> {
                 ColumnName colName = ((ColumnValue) e).getColumnName();
                 if (colName.isColumnWildcard())
                     functionName += "#STAR";
+                else if (distinct)
+                    functionName += "#DISTINCT";
             }
         }
-        else if (distinct) {
-            functionName += "#DISTINCT";
-        }
+        // TODO:  Report error if someone uses DISTINCT with multiple args.
 
         FunctionCall fnCall = new FunctionCall(functionName, distinct, args);
         if (functionDirectory != null)

@@ -49,7 +49,7 @@ public class StdDevVarAggregate extends AggregateFunction {
             // Store the new value
             values.add(value);
         }
-                
+
         if (sum == null) {
             // This is the first value.  Store it.
             sum = value;
@@ -61,17 +61,18 @@ public class StdDevVarAggregate extends AggregateFunction {
         }
     }
 
-    
+
     @Override
     public Object getResult() {
         if (sum == null || values == null)
             return null;
         else {
-            int count = values.size();
+            // TODO:  Need to generate NUMERIC result.  Using double right now.
+            double count = (double) values.size();
             // Compute average from the sum and count.
             Object avg = ArithmeticOperator.evalObjects(
-                ArithmeticOperator.Type.DIVIDE, sum, Integer.valueOf(count));
-            
+                ArithmeticOperator.Type.DIVIDE, sum, count);
+
             // Compute the sum of the square of the residuals.
             Object sumSquaresResids = squareDifference(values.get(0), avg);
             for (int i = 1; i < count; i++) {
@@ -79,12 +80,11 @@ public class StdDevVarAggregate extends AggregateFunction {
                     ArithmeticOperator.Type.ADD, sumSquaresResids,
                     squareDifference(values.get(i), avg));
             }
-            
+
             // Compute the variance.
             Object var = ArithmeticOperator.evalObjects(
-                ArithmeticOperator.Type.DIVIDE, sumSquaresResids, 
-                Integer.valueOf(count));
-            
+                ArithmeticOperator.Type.DIVIDE, sumSquaresResids, count);
+
             // Compute standard deviation if necessary.
             if (computeStdDev) {
                 return ArithmeticOperator.evalObjects(
@@ -95,8 +95,8 @@ public class StdDevVarAggregate extends AggregateFunction {
             }
         }
     }
-    
-    
+
+
     @Override
     public ColumnType getReturnType(List<Expression> args, Schema schema) {
         if (args.size() != 1) {
@@ -109,11 +109,11 @@ public class StdDevVarAggregate extends AggregateFunction {
         // same type as the values of the column.
         return args.get(0).getColumnInfo(schema).getType();
     }
-    
- 
-    /** 
+
+
+    /**
      * Helper function that computes the square of the difference between
-     * two values. 
+     * two values.
      */
     private Object squareDifference(Object value, Object avg) {
         return ArithmeticOperator.evalObjects(ArithmeticOperator.Type.POWER,
