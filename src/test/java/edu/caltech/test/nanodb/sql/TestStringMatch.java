@@ -12,7 +12,7 @@ import edu.caltech.nanodb.server.CommandResult;
  * statements against a single table, to see if simple selects and
  * predicates work properly.
  */
-@Test(groups={"sql"})
+@Test(groups={"sql", "hw2"})
 public class TestStringMatch extends SqlTestCase {
 
     public TestStringMatch() {
@@ -166,5 +166,4 @@ public class TestStringMatch extends SqlTestCase {
             "SELECT * FROM test_string_match WHERE s LIKE '_r%'", true);
         assert checkUnorderedResults(expected2, result);
     }
-
 }

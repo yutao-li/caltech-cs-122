@@ -13,7 +13,7 @@ import edu.caltech.nanodb.server.NanoDBServer;
 * aggregation occurs, we just check to see if the correct columns are grouped
 * and generated.
 **/
-@Test
+@Test(groups={"sql", "hw2"})
 public class TestGroupBy extends SqlTestCase {
     public TestGroupBy() {
         super("setup_testGroupBy");

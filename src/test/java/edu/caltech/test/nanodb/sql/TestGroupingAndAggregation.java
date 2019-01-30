@@ -4,19 +4,18 @@ import org.testng.annotations.Test;
 
 import edu.caltech.nanodb.expressions.TupleLiteral;
 import edu.caltech.nanodb.server.CommandResult;
-import edu.caltech.nanodb.server.NanoDBServer;
 
 /**
 * This class exercises the database with both grouping and aggregation
 * statements, to see if both kinds of expressions can work properly with each
 * other.
 **/
-@Test
+@Test(groups={"sql", "hw2"})
 public class TestGroupingAndAggregation extends SqlTestCase {
     public TestGroupingAndAggregation() {
         super ("setup_testGroupingAndAggregation");
     }
-    
+
     /**
     * This test checks that at least one value was successfully inserted into
     * the test table.
@@ -26,16 +25,16 @@ public class TestGroupingAndAggregation extends SqlTestCase {
     public void testTableNotEmpty() throws Throwable {
         testTableNotEmpty("test_group_aggregate_b");
     }
-    
+
     /**
     * This tests simple aggregation with simple grouping, to see if the query
     * produces the expected results.
-    * 
+    *
     * @throws Exception if any query parsing or execution issues occur.
     **/
     public void testSimpleGroupingAndAggregation() throws Throwable {
         CommandResult result;
-        
+
         result = server.doCommand(
             "SELECT branch_name, MIN(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected1 = {
@@ -58,7 +57,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected1, result);
         assert checkUnorderedResults(expected1, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, MAX(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected2 = {
@@ -81,7 +80,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected2, result);
         assert checkUnorderedResults(expected2, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, AVG(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected3 = {
@@ -104,7 +103,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected3, result);
         assert checkUnorderedResults(expected3, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, COUNT(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected4 = {
@@ -127,7 +126,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected4, result);
         assert checkUnorderedResults(expected4, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, SUM(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected5 = {
@@ -150,7 +149,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected5, result);
         assert checkUnorderedResults(expected5, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, STDDEV(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected6 = {
@@ -173,7 +172,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected6, result);
         assert checkUnorderedResults(expected6, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, VARIANCE(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected7 = {
@@ -197,7 +196,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         assert checkSizeResults(expected7, result);
         assert checkUnorderedResults(expected7, result);
     }
-    
+
     /**
     * This tests complex aggregation with simple grouping, to see if the query
     * produces the expected results.
@@ -206,7 +205,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
     **/
     public void testComplexGroupingSimpleAggregation() throws Throwable {
         CommandResult result;
-        
+
         result = server.doCommand(
             "SELECT branch_name, MIN(balance), COUNT(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected1 = {
@@ -229,10 +228,10 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected1, result);
         assert checkUnorderedResults(expected1, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, MIN(balance), COUNT(balance), AVG(balance), STDDEV(balance), VARIANCE(balance) FROM test_group_aggregate_b GROUP BY branch_name", true);
-        
+
         TupleLiteral[] expected2 = {
             new TupleLiteral( "Belldale" , 60 , 3 , 25353.333333333332 , 29673.94517455039 , 8.805430222222223E8 ),
             new TupleLiteral( "Bretton" , 410 , 4 , 44352.5 , 33994.819734041834 , 1.15564776875E9 ),
@@ -253,7 +252,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected2, result);
         assert checkUnorderedResults(expected2, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, MIN(balance), COUNT(number) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected3 = {
@@ -276,7 +275,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected3, result);
         assert checkUnorderedResults(expected3, result);
-        
+
         result = server.doCommand(
             "SELECT MAX(balance), AVG(balance), COUNT(number) FROM test_group_aggregate_b GROUP BY branch_name", true);
         TupleLiteral[] expected4 = {
@@ -300,7 +299,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         assert checkSizeResults(expected4, result);
         assert checkUnorderedResults(expected4, result);
     }
-    
+
     /**
     * This tests simple and complex aggregation with multiple groups, to see if
     * the query produces the expected results.
@@ -309,7 +308,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
     **/
     public void testAggregationMultipleGroups() throws Throwable {
         CommandResult result;
-        
+
         result = server.doCommand(
             "SELECT branch_name, MIN(balance) FROM test_group_aggregate_b GROUP BY branch_name, number", true);
         TupleLiteral[] expected1 = {
@@ -376,7 +375,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected1, result);
         assert checkUnorderedResults(expected1, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, MIN(balance), COUNT(number) FROM test_group_aggregate_b GROUP BY branch_name, number", true);
         TupleLiteral[] expected2 = {
@@ -444,16 +443,16 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         assert checkSizeResults(expected2, result);
         assert checkUnorderedResults(expected2, result);
     }
-    
+
     /**
     * This tests grouping and aggregation with other kinds of SQL commands, to
     * see if the query produces the expected results.
-    * 
+    *
     * @throws Exception if any query parsing or execution issues occur.
     **/
     public void testWithOtherCommands() throws Throwable {
         CommandResult result;
-        
+
         result = server.doCommand(
             "SELECT branch_name, MAX(balance) FROM (SELECT branch_name, balance FROM test_group_aggregate_b) AS b GROUP BY branch_name", true);
         TupleLiteral[] expected1 = {
@@ -476,7 +475,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected1, result);
         assert checkUnorderedResults(expected1, result);
-        
+
         result = server.doCommand(
             "SELECT branch_name, MAX(balance) FROM test_group_aggregate_b GROUP BY branch_name ORDER BY branch_name", true);
         TupleLiteral[] expected2 = {
@@ -500,8 +499,8 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         assert checkSizeResults(expected2, result);
         assert checkUnorderedResults(expected2, result);
     }
-    
-    
+
+
     /**
      * This tests complicated aggregation with aggregate functions along with
      * arithmetic expressions (i.e. SELECT a + MIN(b)) or SELECT MIN(a + b))
@@ -510,7 +509,7 @@ public class TestGroupingAndAggregation extends SqlTestCase {
      */
     public void testComplicatedGroupingAndAggregation() throws Throwable {
         CommandResult result;
-        
+
         result = server.doCommand(
             "SELECT a + MIN(b) FROM test_complicated_group_aggregation GROUP BY a", true);
         TupleLiteral[] expected = {
@@ -520,8 +519,8 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected, result);
         assert checkUnorderedResults(expected, result);
-        
-        
+
+
         result = server.doCommand(
             "SELECT c, a + SUM(b) FROM test_complicated_group_aggregation GROUP BY c, a", true);
         TupleLiteral[] expected2 = {
@@ -536,8 +535,8 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected2, result);
         assert checkUnorderedResults(expected2, result);
-        
-        
+
+
         result = server.doCommand(
             "SELECT c, a + AVG(b) + MIN(e) FROM test_complicated_group_aggregation GROUP BY c, a", true);
         TupleLiteral[] expected3 = {
@@ -552,8 +551,8 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected3, result);
         assert checkUnorderedResults(expected3, result);
-        
-        
+
+
         result = server.doCommand(
             "SELECT c, MIN(a + b) FROM test_complicated_group_aggregation GROUP BY c", true);
         TupleLiteral[] expected4 = {
@@ -567,8 +566,8 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected4, result);
         assert checkUnorderedResults(expected4, result);
-        
-        
+
+
         result = server.doCommand(
             "SELECT c, MIN(a + e) + MAX(b) FROM test_complicated_group_aggregation GROUP BY c", true);
         TupleLiteral[] expected5 = {
@@ -582,8 +581,8 @@ public class TestGroupingAndAggregation extends SqlTestCase {
         };
         assert checkSizeResults(expected5, result);
         assert checkUnorderedResults(expected5, result);
-        
-        
+
+
         result = server.doCommand(
             "SELECT c, MIN(a) + AVG(e + b) FROM test_complicated_group_aggregation GROUP BY c", true);
         TupleLiteral[] expected6 = {

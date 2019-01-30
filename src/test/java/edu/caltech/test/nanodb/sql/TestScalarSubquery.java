@@ -13,7 +13,7 @@ import edu.caltech.nanodb.server.CommandResult;
  * This class exercises the database with some simple scalar subqueries, to
  * verify that the most basic functionality works.
  **/
-@Test
+@Test(groups={"sql"})
 public class TestScalarSubquery extends SqlTestCase {
     public TestScalarSubquery() {
         super("setup_testExists");

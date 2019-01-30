@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
  * These tests aren't exhaustive; they serve as a smoke-test to verify the
  * basic behaviors.
  */
-@Test
+@Test(groups={"sql"})
 public class TestNaturalUsingJoins extends SqlTestCase {
     public TestNaturalUsingJoins() {
         super("setup_testNaturalUsingJoins");

@@ -13,7 +13,7 @@ import edu.caltech.nanodb.server.CommandResult;
 * many different tables, to see if aggregate expressions work properly. We are
 * just testing aggregation without any grouping.
 **/
-@Test
+@Test(groups={"sql", "hw2"})
 public class TestAggregation extends SqlTestCase {
     public TestAggregation() {
         super("setup_testAggregation");

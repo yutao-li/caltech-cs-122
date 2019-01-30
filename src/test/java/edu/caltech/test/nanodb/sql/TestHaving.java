@@ -4,14 +4,14 @@ import org.testng.annotations.Test;
 
 import edu.caltech.nanodb.expressions.TupleLiteral;
 import edu.caltech.nanodb.server.CommandResult;
-import edu.caltech.nanodb.server.NanoDBServer;
+
 
 /**
 * This class exercises the database with both grouping and aggregation
 * statements, to see if both kinds of expressions can work properly with each
 * other.
 **/
-@Test
+@Test(groups={"sql", "hw2"})
 public class TestHaving extends SqlTestCase {
     public TestHaving() {
         super ("setup_testHaving");
@@ -38,7 +38,6 @@ public class TestHaving extends SqlTestCase {
 
         result = server.doCommand(
             "SELECT a, MIN(b) FROM test_having GROUP BY a HAVING MIN(b) < 2000", true);
-System.err.println("HAVING RESULTS = " + result.getTuples());
         TupleLiteral[] expected1 = {
             new TupleLiteral( 7 , 990 ),
             new TupleLiteral( 11 , 980 ),

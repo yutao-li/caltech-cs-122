@@ -144,7 +144,7 @@
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                     -->
-                    <groups>framework,parser,hw1</groups>
+                    <groups>framework,parser,hw1,hw2</groups>
                 </configuration>
             </plugin>
 

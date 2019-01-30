@@ -10,7 +10,7 @@ import edu.caltech.test.nanodb.sql.SqlTestCase;
 /**
  * This class tests various functions to ensure that they work correctly.
  */
-@Test(groups={"sql"})
+@Test(groups={"sql", "hw2"})
 public class TestSimpleFunctions extends SqlTestCase {
 
     public void testAbs() throws Exception {
