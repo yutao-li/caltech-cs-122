@@ -368,8 +368,9 @@ public class SelectClause {
         // known and non-ambiguous names from the FROM clause.
 
         // SELECT values:  SELECT a, b + c, tbl.* ...
-        resultSchema = new Schema();
+        List<ColumnInfo> resultColumnInfos = new ArrayList<>();
         Set<String> fromTables = fromSchema.getTableNames();
+
         for (SelectValue selVal : selectValues) {
             if (selVal.isWildcard()) {
                 // Make sure that if a table name is specified, that the table
@@ -400,8 +401,11 @@ public class SelectClause {
             }
 
             // Update the result-schema with this select-value's column-info(s).
-            resultSchema = new Schema(selVal.getColumnInfos(fromSchema, resultSchema));
+            resultColumnInfos.addAll(selVal.getColumnInfos(fromSchema, resultSchema));
         }
+
+        // Construct a resultSchema which is the "summation" of all SelectValues' columnInfos.
+        resultSchema = new Schema(resultColumnInfos);
 
         logger.debug("Query schema:  " + resultSchema);
         logger.debug("FROM-clause schema:  " + fromSchema);
