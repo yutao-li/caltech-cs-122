@@ -436,6 +436,70 @@ public class BooleanOperator extends Expression {
 
 
     /**
+     * Simplifies a Boolean expression by eliminating and de-nesting as much of
+     * the expression as possible.
+     */
+    @Override
+    public Expression simplify() {
+        // Go through and try to simplify anything we can inside the operator
+        for (int i = 0; i < terms.size(); i++) {
+            Expression e = terms.get(i);
+            terms.set(i, e.simplify());
+        }
+
+        // There is only one simplification for the NOT expression:
+        // NOT (NOT P) = P
+        if (type == Type.NOT_EXPR) {
+            assert terms.size() == 1;
+            if (terms.get(0) instanceof BooleanOperator) {
+                BooleanOperator nested = (BooleanOperator) terms.get(0);
+                if (nested.type == Type.NOT_EXPR) {
+                    assert nested.terms.size() == 1;
+                    return nested.terms.get(0);
+                }
+            }
+
+            // If we fall through to here, we can't do any simplification of
+            // the NOT expression.
+            return this;
+        }
+
+        // Handle AND and OR expression simplifications.
+        assert type == Type.AND_EXPR || type == Type.OR_EXPR;
+
+        // If there is only one term, just return the term.
+        if (terms.size() == 1)
+            return terms.get(0);
+
+        int i = 0;
+        while (i < terms.size()) {
+            Expression e = terms.get(i);
+            if (e instanceof BooleanOperator) {
+                BooleanOperator b = (BooleanOperator) e;
+                // If the nested Boolean operator is the same type as this
+                // one, we can lift up the terms and put them in this
+                // operator.
+                if (b.type == type) {
+                    terms.remove(i);
+                    terms.addAll(i, b.terms);
+                }
+                else {
+                    i++;
+                }
+
+                // The way this loop is constructed, we will repeat this
+                // check/lift process for any child nodes we just lifted up,
+                // that are also BooleanOperators of the same type, since
+                // the new nodes will now be at index i.
+            }
+        }
+
+
+        return this;
+    }
+
+
+    /**
      * Performs a value-eqality test for whether the specified object is an
      * expression with the same structure and contents.
      *

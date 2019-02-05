@@ -51,7 +51,7 @@ public class PredicateUtils {
 
 
     public static Expression makePredicate(Expression... conjuncts) {
-        ArrayList<Expression> list = new ArrayList<Expression>();
+        ArrayList<Expression> list = new ArrayList<>();
         for (Expression conjunct : conjuncts)
             list.add(conjunct);
 

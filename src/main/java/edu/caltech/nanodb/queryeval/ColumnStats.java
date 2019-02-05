@@ -43,15 +43,6 @@ public class ColumnStats {
     private Object maxValue;
 
 
-    /** Initializes a column-stats object to all "unknown" values. */
-    public ColumnStats() {
-        numUniqueValues = -1;
-        numNullValues = -1;
-        minValue = null;
-        maxValue = null;
-    }
-
-
     /**
      * Initializes a column-stats object with the specified values.
      *
@@ -70,6 +61,19 @@ public class ColumnStats {
         setNumNullValues(numNullValues);
         setMinValue(minValue);
         setMaxValue(maxValue);
+    }
+
+
+    /** Initializes a column-stats object to all "unknown" values. */
+    public ColumnStats() {
+        this(-1, -1, null, null);
+    }
+
+
+    /** Copies another column-stats object into this object. */
+    public ColumnStats(ColumnStats stats) {
+        this(stats.numUniqueValues, stats.numNullValues,
+             stats.minValue, stats.maxValue);
     }
 
 

@@ -188,6 +188,17 @@ public class SelectValue implements Cloneable {
 
 
     /**
+     * Sets this SelectValue's alias result name to the specifie string.
+     *
+     * @param alias the alias to use for the column, or {@code null} if no
+     *        alias should be used
+     */
+    public void setAlias(String alias) {
+        resultAlias = alias;
+    }
+
+
+    /**
      * Returns the wildcard {@link ColumnName} object or <tt>null</tt> if there
      * is none.
      *

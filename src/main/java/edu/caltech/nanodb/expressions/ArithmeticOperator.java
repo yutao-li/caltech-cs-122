@@ -770,6 +770,7 @@ public class ArithmeticOperator extends Expression {
      * Simplifies an arithmetic expression, computing as much of the expression
      * as possible.
      */
+    @Override
     public Expression simplify() {
         leftExpr = leftExpr.simplify();
         rightExpr = rightExpr.simplify();

@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import edu.caltech.nanodb.expressions.ColumnName;
 import edu.caltech.nanodb.expressions.Expression;
 import edu.caltech.nanodb.expressions.OrderByExpression;
+import edu.caltech.nanodb.queryeval.InvalidSQLException;
 import edu.caltech.nanodb.relations.ColumnInfo;
 import edu.caltech.nanodb.relations.Schema;
 import edu.caltech.nanodb.relations.SchemaNameException;
@@ -285,19 +286,38 @@ public class SelectClause {
     }
 
 
+    /**
+     * If a <tt>LIMIT</tt> clause is specified, this method returns the
+     * specified limit; otherwise, the default of 0 is returned.
+     *
+     * @return the offset specified in the SQL
+     */
     public int getLimit() {
         return limit;
     }
 
 
+    /**
+     * Set the upper limit of how many rows should be produced by this query.
+     * A value of 0 means "unlimited."  Negative values are disallowed and
+     * will cause an exception to be thrown.
+     *
+     * @param limit a positive number specifying the maximum number of tuples
+     *        to produce, or 0 to specify "unlimited."
+     */
     public void setLimit(int limit) {
+        if (limit < 0) {
+            throw new InvalidSQLException("Limit must be at least 0 (got " +
+                limit + ")");
+        }
+
         this.limit = limit;
     }
 
 
     /**
      * If an <tt>OFFSET</tt> clause is specified, this method returns the
-     * specified offset; otherwise, 0 is returned.
+     * specified offset; otherwise, the default of 0 is returned.
      *
      * @return the offset specified in the SQL
      */
@@ -306,7 +326,22 @@ public class SelectClause {
     }
 
 
+    /**
+     * Set the starting offset for the rows that should be produced by this
+     * query.  A value of 0 means "start with the first row" (in other words,
+     * "no offset").  Negative values are disallowed and will cause an
+     * exception to be thrown.
+     *
+     * @param offset a positive number specifying the number of tuples to skip
+     *        during query evaluation, or 0 to specify "start at the
+     *        beginning."
+     */
     public void setOffset(int offset) {
+        if (offset < 0) {
+            throw new InvalidSQLException("Offset must be at least 0 (got " +
+                offset + ")");
+        }
+
         this.offset = offset;
     }
 
@@ -378,8 +413,9 @@ public class SelectClause {
                 ColumnName colName = selVal.getWildcard();
                 if (colName.isTableSpecified()) {
                     if (!fromTables.contains(colName.getTableName())) {
-                        throw new SchemaNameException("SELECT-value " + colName +
-                            " specifies an unrecognized table name.");
+                        throw new SchemaNameException(String.format(
+                            "SELECT-value %s specifies an unrecognized " +
+                            "table name.", colName));
                     }
                 }
             }
@@ -404,7 +440,8 @@ public class SelectClause {
             resultColumnInfos.addAll(selVal.getColumnInfos(fromSchema, resultSchema));
         }
 
-        // Construct a resultSchema which is the "summation" of all SelectValues' columnInfos.
+        // Construct a resultSchema which is the "summation" of all
+        // SelectValues' columnInfos.
         resultSchema = new Schema(resultColumnInfos);
 
         logger.debug("Query schema:  " + resultSchema);
@@ -436,11 +473,12 @@ public class SelectClause {
             havingExpr.traverse(subquerySchemaComputer);
         }
 
-        // ORDER BY clauses:
+        // ORDER BY clauses:  These are computed from the result of the
+        // SELECT clause, not the result of the FROM clause.
         for (OrderByExpression expr : orderByExprs) {
             // ORDER BY expressions aren't allowed to have subqueries.
             resolveExpressionRefs("ORDER BY clause", expr.getExpression(),
-                fromSchema, /* checkParentQueries */ false);
+                resultSchema, /* checkParentQueries */ false);
         }
 
         // All done!  Return the computed schema.

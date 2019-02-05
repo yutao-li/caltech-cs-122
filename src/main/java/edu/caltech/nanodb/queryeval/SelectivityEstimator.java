@@ -389,8 +389,8 @@ public class SelectivityEstimator {
      *         (<em>high</em><sub>2</sub> - <em>low</em><sub>2</sub>), clamped
      *         to the range [0, 1].
      */
-    private static float computeRatio(Object low1, Object high1,
-                                      Object low2, Object high2) {
+    public static float computeRatio(Object low1, Object high1,
+                                     Object low2, Object high2) {
 
         Object diff1 = ArithmeticOperator.evalObjects(
             ArithmeticOperator.Type.SUBTRACT, high1, low1);
@@ -398,9 +398,13 @@ public class SelectivityEstimator {
         Object diff2 = ArithmeticOperator.evalObjects(
             ArithmeticOperator.Type.SUBTRACT, high2, low2);
 
+        diff1 = TypeConverter.getFloatValue(diff1);
+        diff2 = TypeConverter.getFloatValue(diff2);
+
         Object ratio = ArithmeticOperator.evalObjects(
             ArithmeticOperator.Type.DIVIDE, diff1, diff2);
 
+        // This should already be a float, but just in case...
         float fltRatio = TypeConverter.getFloatValue(ratio);
 
         logger.debug(String.format("Ratio:  (%s - %s) / (%s - %s) = %.2f",

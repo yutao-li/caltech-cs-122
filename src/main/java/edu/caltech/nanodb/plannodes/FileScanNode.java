@@ -223,15 +223,13 @@ public class FileScanNode extends SelectNode {
         // Grab the schema and statistics from the table file.
 
         schema = tupleFile.getSchema();
-
         TableStats tableStats = tupleFile.getStats();
-        stats = tableStats.getAllColumnStats();
 
         // TODO:  Compute the cost of the plan node!
         cost = null;
 
         // TODO:  Update the statistics based on the predicate.
-
+        stats = tableStats.getAllColumnStats();
     }
 
 
