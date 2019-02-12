@@ -452,6 +452,10 @@ public class SelectClause {
             resolveExpressionRefs("WHERE clause", whereExpr, fromSchema,
                 /* checkParentQueries */ true);
 
+            // Simplify the expression
+            whereExpr = whereExpr.simplify();
+
+            // Compute the schemas of subqueries embedded in the WHERE clause.
             whereExpr.traverse(subquerySchemaComputer);
         }
 
@@ -470,6 +474,10 @@ public class SelectClause {
             resolveExpressionRefs("HAVING clause", havingExpr, fromSchema,
                 /* checkParentQueries */ true);
 
+            // Simplify the expression
+            havingExpr = havingExpr.simplify();
+
+            // Compute the schemas of subqueries embedded in the HAVING clause
             havingExpr.traverse(subquerySchemaComputer);
         }
 

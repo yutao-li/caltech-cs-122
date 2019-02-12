@@ -72,7 +72,7 @@ public class BooleanOperator extends Expression {
             throw new NullPointerException("type cannot be null");
 
         this.type = type;
-        this.terms = new ArrayList<Expression>();
+        this.terms = new ArrayList<>();
 
         if (terms != null) {
             for (Expression term : terms)
@@ -492,8 +492,11 @@ public class BooleanOperator extends Expression {
                 // that are also BooleanOperators of the same type, since
                 // the new nodes will now be at index i.
             }
+            else {
+                // Some other kind of term - skip it.
+                i++;
+            }
         }
-
 
         return this;
     }

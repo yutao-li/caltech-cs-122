@@ -665,6 +665,7 @@ public class FromClause {
         }
 
         joinOnExpr = expr;
+        joinOnExpr = joinOnExpr.simplify();
     }
 
 
