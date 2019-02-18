@@ -67,7 +67,7 @@ public class TestInPredicates extends SqlTestCase {
      *
      * @throws Exception if any query parsing or execution issues occur.
      */
-    @Test(groups={"sql"})
+    @Test(groups={"sql", "hw5"})
     public void testInSubquery() throws Throwable {
         CommandResult result;
         TupleLiteral[] expected1 = {

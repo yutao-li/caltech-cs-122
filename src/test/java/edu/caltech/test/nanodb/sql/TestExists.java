@@ -11,7 +11,7 @@ import edu.caltech.nanodb.server.CommandResult;
  * This class exercises the database with some simple EXISTS operations, to
  * verify that the most basic functionality works.
  **/
-@Test(groups={"sql"})
+@Test(groups={"sql", "hw5"})
 public class TestExists extends SqlTestCase {
     public TestExists() {
         super("setup_testExists");
