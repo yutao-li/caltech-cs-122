@@ -106,11 +106,10 @@ public class InSubqueryOperator extends SubqueryOperator {
                 break;
 
             if (TupleComparator.areTuplesEqual(valueTup, subqueryTup))
-                return Boolean.TRUE;
+                return invert ? false : true;
         }
 
-        // If we got here, nothing matched.
-        return Boolean.FALSE;
+        return invert ? true : false;
     }
 
 
