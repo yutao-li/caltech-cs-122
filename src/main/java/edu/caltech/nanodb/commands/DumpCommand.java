@@ -1,6 +1,7 @@
 package edu.caltech.nanodb.commands;
 
 
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
 import edu.caltech.nanodb.plannodes.PlanNode;
@@ -121,31 +122,28 @@ public abstract class DumpCommand extends Command {
 
     @Override
     public void execute(NanoDBServer server) throws ExecutionException {
-
-        try {
-            // Figure out where the dumped data should go.
-            PrintStream dumpOut = out;
-            if (fileName != null)
+        // Figure out where the dumped data should go.
+        PrintStream dumpOut = out;
+        if (fileName != null) {
+            try {
                 dumpOut = new PrintStream(fileName);
-
-            // Dump the table.
-            PlanNode dumpPlan = prepareDumpPlan(server);
-            TupleExporter exporter = new TupleExporter(dumpOut);
-            EvalStats stats = QueryEvaluator.executePlan(dumpPlan, exporter);
-
-            if (fileName != null)
-                dumpOut.close();
-
-            // Print out the evaluation statistics.
-            out.printf("Dumped %d rows in %f sec.%n",
-                stats.getRowsProduced(), stats.getElapsedTimeSecs());
+            }
+            catch (FileNotFoundException e) {
+                throw new ExecutionException(e);
+            }
         }
-        catch (ExecutionException e) {
-            throw e;
-        }
-        catch (Exception e) {
-            throw new ExecutionException(e);
-        }
+
+        // Dump the table.
+        PlanNode dumpPlan = prepareDumpPlan(server);
+        TupleExporter exporter = new TupleExporter(dumpOut);
+        EvalStats stats = QueryEvaluator.executePlan(dumpPlan, exporter);
+
+        if (fileName != null)
+            dumpOut.close();
+
+        // Print out the evaluation statistics.
+        out.printf("Dumped %d rows in %f sec.%n",
+            stats.getRowsProduced(), stats.getElapsedTimeSecs());
     }
 
 

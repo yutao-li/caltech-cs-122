@@ -1,8 +1,13 @@
 package edu.caltech.nanodb.commands;
 
 
+import edu.caltech.nanodb.indexes.IndexInfo;
+import edu.caltech.nanodb.indexes.IndexManager;
+import edu.caltech.nanodb.plannodes.FileScanNode;
 import edu.caltech.nanodb.plannodes.PlanNode;
+import edu.caltech.nanodb.relations.TableInfo;
 import edu.caltech.nanodb.server.NanoDBServer;
+import edu.caltech.nanodb.storage.TableManager;
 
 
 /**
@@ -60,8 +65,20 @@ public class DumpIndexCommand extends DumpCommand {
 
     @Override
     protected PlanNode prepareDumpPlan(NanoDBServer server) {
-        // TODO:  Index scan!
-        return null;
+        // Open the table so we can open the index.
+        TableManager tblMgr = server.getStorageManager().getTableManager();
+        TableInfo tblInfo = tblMgr.openTable(tableName);
+
+        // Open the index.
+        IndexManager idxMgr = server.getStorageManager().getIndexManager();
+        IndexInfo idxInfo = idxMgr.openIndex(tblInfo, indexName);
+
+        // Make a file-scan plan-node over the index.
+        PlanNode plan = new FileScanNode(idxInfo, null);
+        plan.prepare();
+
+        // Done!
+        return plan;
     }
 
 
