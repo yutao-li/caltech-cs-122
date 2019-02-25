@@ -285,7 +285,7 @@ public class TestTupleComparator {
     }
 
 
-    public void testComparePartialTuplesDifferentLengths() {
+    public void testComparePartialTuplesIgnoreLength() {
         TupleLiteral t0 = new TupleLiteral();
         TupleLiteral t1 = new TupleLiteral(new Object[]{null});
         TupleLiteral t2 = new TupleLiteral(1);
@@ -297,16 +297,17 @@ public class TestTupleComparator {
         assert TupleComparator.comparePartialTuples(t0, t0) == 0;
         assert TupleComparator.comparePartialTuples(t2, t2) == 0;
 
-        // Empty tuple should always compare less than all other tuples.
+        // In "IGNORE_LENGTH" mode, empty tuple always compares equal to
+        // all other tuples.
 
-        assert TupleComparator.comparePartialTuples(t0, t2) < 0;
-        assert TupleComparator.comparePartialTuples(t2, t0) > 0;
+        assert TupleComparator.comparePartialTuples(t0, t2) == 0;
+        assert TupleComparator.comparePartialTuples(t2, t0) == 0;
 
-        assert TupleComparator.comparePartialTuples(t0, t1) < 0;
-        assert TupleComparator.comparePartialTuples(t1, t0) > 0;
+        assert TupleComparator.comparePartialTuples(t0, t1) == 0;
+        assert TupleComparator.comparePartialTuples(t1, t0) == 0;
 
-        assert TupleComparator.comparePartialTuples(t0, t5) < 0;
-        assert TupleComparator.comparePartialTuples(t5, t0) > 0;
+        assert TupleComparator.comparePartialTuples(t0, t5) == 0;
+        assert TupleComparator.comparePartialTuples(t5, t0) == 0;
 
         // Compare tuples of different lengths - only the common columns
         // should be used.
@@ -325,6 +326,54 @@ public class TestTupleComparator {
 
         assert TupleComparator.comparePartialTuples(t3, t8) == 0;
         assert TupleComparator.comparePartialTuples(t8, t3) == 0;
+    }
+
+
+    public void testComparePartialTuplesShorterIsLess() {
+        TupleLiteral t0 = new TupleLiteral();
+        TupleLiteral t1 = new TupleLiteral(new Object[]{null});
+        TupleLiteral t2 = new TupleLiteral(1);
+        TupleLiteral t3 = new TupleLiteral(1, 2);
+        TupleLiteral t5 = new TupleLiteral(1, 2, 2);
+        TupleLiteral t7 = new TupleLiteral(1, null, 3);
+        TupleLiteral t8 = new TupleLiteral(1, 2, null);
+
+        // Just for less typing, oi!
+        final TupleComparator.CompareMode mode =
+            TupleComparator.CompareMode.SHORTER_IS_LESS;
+
+        assert TupleComparator.comparePartialTuples(t0, t0, mode) == 0;
+        assert TupleComparator.comparePartialTuples(t2, t2, mode) == 0;
+
+        // Empty tuple should always compare less than all other tuples.
+
+        assert TupleComparator.comparePartialTuples(t0, t2, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t2, t0, mode) > 0;
+
+        assert TupleComparator.comparePartialTuples(t0, t1, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t1, t0, mode) > 0;
+
+        assert TupleComparator.comparePartialTuples(t0, t5, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t5, t0, mode) > 0;
+
+        // Compare tuples of different lengths - the common columns should be
+        // used, but if all common columns are equal, the shorter tuple is
+        // still considered to be "less than" the longer tuple.
+
+        assert TupleComparator.comparePartialTuples(t2, t3, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t3, t2, mode) > 0;
+
+        assert TupleComparator.comparePartialTuples(t3, t5, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t5, t3, mode) > 0;
+
+        assert TupleComparator.comparePartialTuples(t2, t5, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t5, t2, mode) > 0;
+
+        assert TupleComparator.comparePartialTuples(t2, t7, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t7, t2, mode) > 0;
+
+        assert TupleComparator.comparePartialTuples(t3, t8, mode) < 0;
+        assert TupleComparator.comparePartialTuples(t8, t3, mode) > 0;
     }
 
 

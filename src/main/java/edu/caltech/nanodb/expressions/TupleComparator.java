@@ -21,6 +21,38 @@ import edu.caltech.nanodb.util.Pair;
 public class TupleComparator implements Comparator<Tuple> {
 
     /**
+     * This enumeration specifies available comparison modes that the
+     * {@link TupleComparator} is able to use when comparing tuples.
+     */
+    public enum CompareMode {
+        /**
+         * It is an error to compare two tuples of different lengths (i.e.
+         * number of columns).
+         */
+        SAME_LENGTH,
+
+        /**
+         * When different-length tuples are compared, the extra column-values
+         * in the longer tuple are completely ignored.  For example, a tuple
+         * <tt>[1, 'A']</tt> will compare as equal to another tuple
+         * <tt>[1, 'A', 532]</tt>.  A consequence of this is that the empty
+         * tuple <tt>[]</tt> will compare as equal to all other tuples.
+         */
+        IGNORE_LENGTH,
+
+        /**
+         * When different-length tuples are compared, if the leading columns
+         * have the same values then the shorter tuple will compare as "less."
+         * For example, a tuple <tt>[1, 'A']</tt> will compare as less than
+         * another tuple <tt>[1, 'A', 532]</tt>.  A consequence of this is
+         * that the empty tuple <tt>[]</tt> will compare as less than to all
+         * other tuples.
+         */
+        SHORTER_IS_LESS
+    }
+
+
+    /**
      * The schema of the tuples that will be compared by this comparator object.
      */
     private Schema schema;
@@ -244,7 +276,7 @@ public class TupleComparator implements Comparator<Tuple> {
      *         sizes.
      */
     public static int compareTuples(Tuple t1, Tuple t2) {
-        return _compareTuples(t1, t2, false);
+        return _compareTuples(t1, t2, CompareMode.SAME_LENGTH);
     }
 
 
@@ -279,7 +311,13 @@ public class TupleComparator implements Comparator<Tuple> {
      *         the two inputs
      */
     public static int comparePartialTuples(Tuple t1, Tuple t2) {
-        return _compareTuples(t1, t2, true);
+        return comparePartialTuples(t1, t2, CompareMode.IGNORE_LENGTH);
+    }
+
+
+    public static int comparePartialTuples(Tuple t1, Tuple t2,
+                                           CompareMode compareMode) {
+        return _compareTuples(t1, t2, compareMode);
     }
 
 
@@ -293,44 +331,37 @@ public class TupleComparator implements Comparator<Tuple> {
      *
      * @param t2 the second tuple to compare.  Must not be {@code null}.
      *
-     * @param allowSizeMismatch true if the two tuples are allowed to be
-     *        different sizes, or false if they must be the same size.
+     * @param compareMode specifies how to handle tuples of different sizes.
      *
      * @return a negative, positive, or zero value indicating the ordering of
      *         the two inputs
      */
     @SuppressWarnings("unchecked")
     private static int _compareTuples(Tuple t1, Tuple t2,
-                                      boolean allowSizeMismatch) {
+                                      CompareMode compareMode) {
         if (t1 == null)
             throw new IllegalArgumentException("t1 cannot be null");
 
         if (t2 == null)
             throw new IllegalArgumentException("t2 cannot be null");
 
+        if (compareMode == null)
+            throw new IllegalArgumentException("compareMode cannot be null");
+
         int t1Size = t1.getColumnCount();
         int t2Size = t2.getColumnCount();
 
-        if (!allowSizeMismatch) {
+        if (compareMode == CompareMode.SAME_LENGTH) {
             if (t1Size != t2Size)
                 throw new IllegalArgumentException("tuples must be the same size");
         }
-        else {
-            // If one of the tuples is an empty tuple, and the other one is
-            // not, we define this as the empty tuple being less than the
-            // non-empty tuple.
-            if (t1Size == 0 || t2Size == 0)
-                return t1Size - t2Size;
 
-            // Now we know that both tuples have at least one column.
-            // Only compare the columns that are present in both tuples.
-            t1Size = Math.min(t1Size, t2Size);
-            t2Size = t1Size;
-        }
+        // Only compare the columns that are present in both tuples.
+        int compareCols = Math.min(t1Size, t2Size);
 
         int compareResult = 0;
         int i = 0;
-        while (i < t1Size && compareResult == 0) {
+        while (i < compareCols && compareResult == 0) {
             Object objA = t1.getColumnValue(i);
             Object objB = t2.getColumnValue(i);
 
@@ -356,6 +387,11 @@ public class TupleComparator implements Comparator<Tuple> {
             }
 
             i++;
+        }
+
+        if (compareResult == 0 && t1Size != t2Size &&
+            compareMode == CompareMode.SHORTER_IS_LESS) {
+            compareResult = t1Size - t2Size;
         }
 
         return compareResult;
