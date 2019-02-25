@@ -112,8 +112,8 @@ public class DatabaseConstraintEnforcer implements RowEventListener {
         List<KeyColumnRefs> candKeyList = schema.getCandidateKeys();
         for (KeyColumnRefs candKey : candKeyList) {
             if (hasCandidateKeyValue(tableInfo, candKey, newTuple)) {
-                String msg = makeErrorMessage(
-                    "Cannot insert tuple due to unique constraint",
+                String msg = makeErrorMessage("Cannot insert tuple " +
+                    newTuple + " due to unique constraint",
                     candKey.getConstraintName());
 
                 throw new ConstraintViolationException(msg);
@@ -125,8 +125,8 @@ public class DatabaseConstraintEnforcer implements RowEventListener {
         List<ForeignKeyColumnRefs> foreignKeys = schema.getForeignKeys();
         for (ForeignKeyColumnRefs foreignKey : foreignKeys) {
             if (!referencedTableHasValue(foreignKey, newTuple)) {
-                String msg = makeErrorMessage(
-                    "Cannot insert tuple due to foreign key constraint",
+                String msg = makeErrorMessage("Cannot insert tuple " +
+                    newTuple + " due to foreign key constraint",
                     foreignKey.getConstraintName());
 
                 throw new ConstraintViolationException(msg);
@@ -388,9 +388,10 @@ public class DatabaseConstraintEnforcer implements RowEventListener {
 
                     if (existsOp.evaluatePredicate(null)) {
                         throw new ConstraintViolationException(String.format(
-                            "Cannot update tuple on table %s due to ON UPDATE " +
-                            "RESTRICT constraint %s from referencing table %s",
-                            tableName, fk.getConstraintName(), referencingTableName));
+                            "Cannot update tuple %s on table %s due to " +
+                            "ON UPDATE RESTRICT constraint %s from " +
+                            "referencing table %s", oldTuple, tableName,
+                            fk.getConstraintName(), referencingTableName));
                     }
                 }
                 break;
@@ -460,9 +461,10 @@ public class DatabaseConstraintEnforcer implements RowEventListener {
 
                     if (existsOp.evaluatePredicate(null)) {
                         throw new ConstraintViolationException(String.format(
-                            "Cannot delete tuple on table %s due to ON DELETE " +
-                                "RESTRICT constraint %s from referencing table %s",
-                            tableName, fk.getConstraintName(), referencingTableName));
+                            "Cannot delete tuple %s on table %s due to " +
+                            "ON DELETE RESTRICT constraint %s from " +
+                            "referencing table %s", oldTuple, tableName,
+                            fk.getConstraintName(), referencingTableName));
                     }
                 }
                 break;
