@@ -101,6 +101,9 @@ public class IndexedTableManager implements TableManager {
         if ("heap".equals(storageType)) {
             type = DBFileType.HEAP_TUPLE_FILE;
         }
+        else if ("btree".equals(storageType)) {
+            type = DBFileType.BTREE_TUPLE_FILE;
+        }
         else {
             throw new IllegalArgumentException("Unrecognized table file " +
                 "type:  " + storageType);

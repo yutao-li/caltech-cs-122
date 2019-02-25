@@ -16,6 +16,8 @@ import edu.caltech.nanodb.server.EventDispatcher;
 import edu.caltech.nanodb.server.NanoDBServer;
 import edu.caltech.nanodb.server.properties.PropertyRegistry;
 import edu.caltech.nanodb.server.properties.ServerProperties;
+
+import edu.caltech.nanodb.storage.btreefile.BTreeTupleFileManager;
 import edu.caltech.nanodb.storage.heapfile.HeapTupleFileManager;
 import edu.caltech.nanodb.transactions.TransactionManager;
 
@@ -138,6 +140,9 @@ public class StorageManager {
 
         tupleFileManagers.put(DBFileType.HEAP_TUPLE_FILE,
             new HeapTupleFileManager(this));
+
+        tupleFileManagers.put(DBFileType.BTREE_TUPLE_FILE,
+            new BTreeTupleFileManager(this));
 
         if (enableTransactions) {
             logger.info("Initializing transaction manager.");
