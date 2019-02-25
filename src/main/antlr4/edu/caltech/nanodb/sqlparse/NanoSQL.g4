@@ -358,8 +358,8 @@ expression:
       | expression op=( '<' | '<=' | '>' | '>=' | '=' | '==' | '!=' | '<>' ) expression     # ExprCompare
       | expression IS NOT? NULL                             # ExprIsNull
       | expression NOT? BETWEEN expression AND expression   # ExprBetween
-      | expression LIKE expression                          # ExprLike
-      | expression SIMILAR TO expression                    # ExprSimilarTo
+      | expression NOT? LIKE expression                     # ExprLike
+      | expression NOT? SIMILAR TO expression               # ExprSimilarTo
       | expression NOT? IN expressionList                   # ExprOneColInValues
       | expression NOT? IN '(' selectStmt ')'               # ExprOneColInSubquery
       | expressionList NOT? IN '(' selectStmt ')'           # ExprMultiColInSubquery

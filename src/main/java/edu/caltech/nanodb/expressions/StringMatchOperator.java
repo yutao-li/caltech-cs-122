@@ -74,6 +74,13 @@ public class StringMatchOperator extends Expression {
     Expression rightExpr;
 
 
+    /**
+     * If this is false, the operator computes <tt>IS LIKE</tt>; if true,
+     * the operator computes <tt>IS NOT LIKE</tt>.
+     */
+    private boolean invert;
+
+
     public StringMatchOperator(Type type, Expression lhs, Expression rhs) {
         if (type == null || lhs == null || rhs == null)
             throw new NullPointerException();
@@ -81,6 +88,11 @@ public class StringMatchOperator extends Expression {
         this.type = type;
         leftExpr = lhs;
         rightExpr = rhs;
+    }
+
+
+    public void setInvert(boolean invert) {
+        this.invert = invert;
     }
 
 
@@ -189,7 +201,10 @@ public class StringMatchOperator extends Expression {
                     "Unrecognized string-matching type " + type);
         }
 
-        return Boolean.valueOf(result);
+        if (invert)
+            result = !result;
+
+        return result;
     }
 
 
@@ -211,6 +226,8 @@ public class StringMatchOperator extends Expression {
         String leftStr = leftExpr.toString();
         String rightStr = rightExpr.toString();
         String opStr = " " + type.stringRep() + " ";
+        if (invert)
+            opStr = " NOT" + opStr;
 
         // For now, assume we don't need parentheses.
 
@@ -260,7 +277,7 @@ public class StringMatchOperator extends Expression {
         if (obj instanceof StringMatchOperator) {
             StringMatchOperator other = (StringMatchOperator) obj;
 
-            return (type == other.type &&
+            return (type == other.type && invert == other.invert &&
                 leftExpr.equals(other.leftExpr) &&
                 rightExpr.equals(other.rightExpr));
         }
@@ -277,6 +294,7 @@ public class StringMatchOperator extends Expression {
     public int hashCode() {
         int hash = 7;
         hash = 31 * hash + type.hashCode();
+        hash = 31 * hash + Boolean.hashCode(invert);
         hash = 31 * hash + leftExpr.hashCode();
         hash = 31 * hash + rightExpr.hashCode();
         return hash;
