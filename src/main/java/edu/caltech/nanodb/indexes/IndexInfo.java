@@ -4,6 +4,8 @@ package edu.caltech.nanodb.indexes;
 import edu.caltech.nanodb.relations.IndexColumnRefs;
 import edu.caltech.nanodb.relations.Schema;
 import edu.caltech.nanodb.relations.TableInfo;
+import edu.caltech.nanodb.storage.HashedTupleFile;
+import edu.caltech.nanodb.storage.SequentialTupleFile;
 import edu.caltech.nanodb.storage.TupleFile;
 
 
@@ -79,6 +81,18 @@ public class IndexInfo {
 //        columnInfos = schema.getColumnInfos(tableColumnIndexes.getCols());
 //        columnInfos.add(new ColumnInfo("#TUPLE_FP",
 //            new ColumnType(SQLDataType.FILE_POINTER)));
+    }
+
+
+    public IndexType getIndexType() {
+        IndexType type = null;
+
+        if (tupleFile instanceof SequentialTupleFile)
+            type = IndexType.ORDERED_INDEX;
+        else if (tupleFile instanceof HashedTupleFile)
+            type = IndexType.HASHED_INDEX;
+
+        return type;
     }
 
 
