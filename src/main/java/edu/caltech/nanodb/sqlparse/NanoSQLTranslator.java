@@ -1002,16 +1002,26 @@ public class NanoSQLTranslator extends NanoSQLBaseVisitor<Object> {
 
     @Override
     public Object visitExprLike(NanoSQLParser.ExprLikeContext ctx) {
+        boolean invert = (ctx.NOT() != null);
         Expression lhs = (Expression) visit(ctx.expression(0));
         Expression rhs = (Expression) visit(ctx.expression(1));
-        return new StringMatchOperator(StringMatchOperator.Type.LIKE, lhs, rhs);
+
+        StringMatchOperator op = new StringMatchOperator(
+            StringMatchOperator.Type.LIKE, lhs, rhs);
+        op.setInvert(invert);
+        return op;
     }
 
     @Override
     public Object visitExprSimilarTo(NanoSQLParser.ExprSimilarToContext ctx) {
+        boolean invert = (ctx.NOT() != null);
         Expression lhs = (Expression) visit(ctx.expression(0));
         Expression rhs = (Expression) visit(ctx.expression(1));
-        return new StringMatchOperator(StringMatchOperator.Type.REGEX, lhs, rhs);
+
+        StringMatchOperator op = new StringMatchOperator(
+            StringMatchOperator.Type.REGEX, lhs, rhs);
+        op.setInvert(invert);
+        return op;
     }
 
     @Override
