@@ -58,6 +58,14 @@ public class BTreeFilePageTuple extends PageTuple {
                 "tupleIndex must be at least 0, got " + tupleIndex);
         }
 
+        unpin(); // TODO(michael): This is gross. I know.
+        // What we really want here is a tuple that acts like a "weak reference" to its
+        // underlying page. This is because we actually instantiate these tuples inside
+        // the page itself (well, inside of LeafPage), so we end up having the page
+        // pinned N times more than the actual references that escape outside of the
+        // internal BT data structures. We will re-pin the tuples in the outward-facing
+        // methods in `BTreeTupleFile`.
+
         this.tupleIndex = tupleIndex;
     }
 

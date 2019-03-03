@@ -112,7 +112,7 @@ public class MaterializeNode extends PlanNode {
                 if (tup != null) {
                     if (tup.isDiskBacked()) {
                         // Make an in-memory version of the tuple we can cache.
-                        Tuple copy = new TupleLiteral(tup);
+                        Tuple copy = TupleLiteral.fromTuple(tup);
                         tup.unpin();
                         tup = copy;
                     }

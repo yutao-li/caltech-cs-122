@@ -260,7 +260,7 @@ public class BTreeFileVerifier {
             ArrayList<TupleLiteral> keys = new ArrayList<>(numKeys);
             if (numKeys > 1) {
                 Tuple prevKey = inner.getKey(0);
-                keys.add(new TupleLiteral(prevKey));
+                keys.add(TupleLiteral.fromTuple(prevKey));
 
                 if (parentLeftKey != null) {
                     int cmp = TupleComparator.compareTuples(parentLeftKey, prevKey);
@@ -275,7 +275,7 @@ public class BTreeFileVerifier {
 
                 for (int k = 1; k < numKeys; k++) {
                     Tuple key = inner.getKey(k);
-                    keys.add(new TupleLiteral(key));
+                    keys.add(TupleLiteral.fromTuple(key));
 
                     int cmp = TupleComparator.compareTuples(prevKey, key);
                     if (cmp == 0) {

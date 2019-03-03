@@ -190,6 +190,7 @@ public class BTreeTupleFile implements SequentialTupleFile {
         if (leaf != null && leaf.getNumTuples() > 0)
             tup = leaf.getTuple(0);
 
+        tup.pin();
         return tup;
     }
 
@@ -256,8 +257,14 @@ public class BTreeTupleFile implements SequentialTupleFile {
                         logger.error(String.format(
                             "Next leaf node %d has no entries?!", nextPageNo));
                     }
+
+                    dbPage.unpin();
                 }
             }
+        }
+
+        if (nextTuple != null) {
+            nextTuple.pin();
         }
 
         return nextTuple;
@@ -281,8 +288,11 @@ public class BTreeTupleFile implements SequentialTupleFile {
         LeafPage leaf = new LeafPage(dbPage, schema);
         for (int i = 0; i < leaf.getNumTuples(); i++) {
             BTreeFilePageTuple tup = leaf.getTuple(i);
-            if (tup.getOffset() == fpOffset)
+
+            if (tup.getOffset() == fpOffset) {
+                tup.pin();
                 return tup;
+            }
 
             // Tuple offsets within a page will be monotonically increasing.
             if (tup.getOffset() > fpOffset)
@@ -320,6 +330,7 @@ public class BTreeTupleFile implements SequentialTupleFile {
 
                 if (cmp == 0) {
                     // Found it!
+                    tup.pin();
                     return tup;
                 }
                 else if (cmp > 0) {
@@ -372,8 +383,10 @@ public class BTreeTupleFile implements SequentialTupleFile {
             for (int i = 0; i < leaf.getNumTuples(); i++) {
                 BTreeFilePageTuple tup = leaf.getTuple(i);
                 int cmp = TupleComparator.comparePartialTuples(tup, searchKey);
-                if (cmp > 0)
+                if (cmp > 0) {
+                    tup.pin();
                     return tup;  // Found it!
+                }
             }
 
             leaf.getDBPage().unpin();
@@ -397,10 +410,12 @@ public class BTreeTupleFile implements SequentialTupleFile {
         if (tup instanceof TupleLiteral)
             tupLit = (TupleLiteral) tup;
         else
-            tupLit = new TupleLiteral(tup);
+            tupLit = TupleLiteral.fromTuple(tup);
         tupLit.setStorageSize(PageTuple.getTupleStorageSize(schema, tupLit));
 
-        return leafPageOps.addTuple(leaf, tupLit, pagePath);
+        BTreeFilePageTuple bTup = leafPageOps.addTuple(leaf, tupLit, pagePath);
+        bTup.pin();
+        return bTup;
     }
 
 
